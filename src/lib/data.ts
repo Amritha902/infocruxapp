@@ -1,4 +1,4 @@
-import type { Portfolio, WatchlistItem, Announcement, SectorAllocation, NewsItem, LiveRiskData } from './types';
+import type { Portfolio, WatchlistItem, Announcement, SectorAllocation, NewsItem, LiveRiskData, StockData } from './types';
 
 export const portfolioData: Portfolio = {
   totalInvested: 155500,
@@ -297,17 +297,69 @@ export const newsData: NewsItem[] = [
 ];
 
 
-export const getStockData = (symbol: string) => {
+const MOCK_STOCK_DETAILS: { [key: string]: Partial<StockData> } = {
+    'RELIANCE.NS': {
+        riskTrend: 'increasing',
+        lastTrigger: '45 min ago',
+        riskDrivers: ['Unusual options activity', 'Sector divergence'],
+        announcementHistory: [
+            { id: 'a1', timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(), title: 'Strategic partnership with ABC Infra', reactionScore: 78 },
+            { id: 'a2', timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), title: 'Quarterly Results Announcement', reactionScore: 45 },
+            { id: 'a3', timestamp: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(), title: 'AGM Highlights', reactionScore: 62 },
+        ]
+    },
+    'TCS.NS': {
+        riskTrend: 'stable',
+        lastTrigger: '2 hours ago',
+        riskDrivers: ['Normal market reaction'],
+        announcementHistory: [
+            { id: 'b1', timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), title: 'New multi-year deal with European bank', reactionScore: 25 },
+        ]
+    },
+    'HDFCBANK.NS': {
+        riskTrend: 'stable',
+        lastTrigger: '4 hours ago',
+        riskDrivers: ['Elevated volume ahead of results'],
+        announcementHistory: [
+            { id: 'c1', timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), title: 'Board meeting for Q1 results', reactionScore: 45 },
+        ]
+    },
+    'INFY.NS': {
+        riskTrend: 'decreasing',
+        lastTrigger: '1 day ago',
+        riskDrivers: ['Normal trading day'],
+        announcementHistory: [
+            { id: 'd1', timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(), title: 'Q2 Earnings Preview', reactionScore: 15 },
+        ]
+    },
+    'BHARTIARTL.NS': {
+        riskTrend: 'stable',
+        lastTrigger: '3 hours ago',
+        riskDrivers: ['Price moved opposite to sector'],
+         announcementHistory: [
+            { id: 'e1', timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), title: 'Prepaid tariff plan revision', reactionScore: 55 },
+        ]
+    },
+     'ADANIENT.NS': {
+        riskTrend: 'increasing',
+        lastTrigger: '12 min ago',
+        riskDrivers: ['Volume 5.2x baseline'],
+    },
+}
+
+
+export const getStockData = (symbol: string): StockData | null => {
     const holding = portfolioData.holdings.find(h => h.symbol === symbol);
     if(holding) {
       const { ltp, ...rest } = holding;
-      return { ...rest, price: ltp, ltp };
+      return { ...rest, price: ltp, ltp, ...MOCK_STOCK_DETAILS[symbol] };
     }
 
     const watchlistItem = watchlistData.find(w => w.symbol === symbol);
     if(watchlistItem) return {
       ...watchlistItem,
-      ltp: watchlistItem.price
+      ltp: watchlistItem.price,
+      ...MOCK_STOCK_DETAILS[symbol]
     };
     
     const liveItem = liveRiskMonitorData.find(w => w.symbol === symbol);
@@ -320,6 +372,7 @@ export const getStockData = (symbol: string) => {
       change: 0,
       changePercentage: 0,
       riskScore: liveItem.riskScore,
+      ...MOCK_STOCK_DETAILS[symbol]
     };
 
     return null;

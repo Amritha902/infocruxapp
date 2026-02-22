@@ -71,6 +71,10 @@ export type StockData = {
     change?: number;
     changePercentage?: number;
     riskScore?: number;
+    riskTrend?: 'increasing' | 'decreasing' | 'stable';
+    lastTrigger?: string;
+    riskDrivers?: string[];
+    announcementHistory?: AnnouncementHistoryItem[];
     quantity?: number;
     avgPrice?: number;
     sector?: string;
@@ -79,6 +83,13 @@ export type StockData = {
     pnl?: number;
     dayPnl?: number;
     dayChange?: number;
+}
+
+export type AnnouncementHistoryItem = {
+    id: string;
+    timestamp: string;
+    title: string;
+    reactionScore: number;
 }
 
 export type NewsItem = {
