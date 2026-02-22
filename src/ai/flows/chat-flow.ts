@@ -9,6 +9,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { announcementsData, portfolioData } from '@/lib/data';
 
 // Tool for web search
 const searchTheWeb = ai.defineTool(
@@ -24,7 +25,42 @@ const searchTheWeb = ai.defineTool(
       console.log(`Searching web for: ${query}`);
       return `According to web sources, ${query} is a complex topic. For instance, a P/E ratio (price-to-earnings ratio) is the ratio for valuing a company that measures its current share price relative to its per-share earnings. A high P/E ratio could mean that a company's stock is overvalued, or else that investors are expecting high growth rates in the future. You can find more at https://www.investopedia.com/terms/p/price-earningsratio.asp.`;
     }
-  );
+);
+
+// Tool for historical anomaly search
+const getStockAnomalies = ai.defineTool(
+    {
+        name: 'getStockAnomalies',
+        description: "Retrieves a stock's history of announcements and statistically abnormal market reactions. Use this to analyze a company's track record or check for past 'red flags'.",
+        inputSchema: z.object({ symbol: z.string().describe('The stock symbol, e.g., "RELIANCE.NS"') }),
+        outputSchema: z.array(z.object({
+            date: z.string(),
+            event: z.string(),
+            riskScore: z.number(),
+        })),
+    },
+    async ({ symbol }) => {
+        // In a real implementation, this would query Firestore's anomaly history collection.
+        // For this prototype, we'll return mock data.
+        console.log(`Searching anomaly history for: ${symbol}`);
+        const historicalAnomalies = announcementsData
+            .filter(a => a.symbol === symbol && a.riskScore > 40)
+            .map(a => ({
+                date: a.timestamp,
+                event: a.fullText.substring(0, 50) + '...',
+                riskScore: a.riskScore,
+            }));
+        // Add a fake one for demonstration
+        if (symbol === 'RELIANCE.NS') {
+            historicalAnomalies.push({
+                date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+                event: "Clarification on media report regarding new venture...",
+                riskScore: 65
+            })
+        }
+        return historicalAnomalies;
+    }
+);
 
 
 const MarketAnalysisSchema = z.object({
@@ -33,7 +69,7 @@ const MarketAnalysisSchema = z.object({
   riskCategory: z.string().optional().describe("The risk category (e.g., 'Normal', 'Moderate', 'Statistically Abnormal'), if available."),
   abnormalReturn: z.number().optional().describe("The abnormal return percentage."),
   volumeSpikeRatio: z.number().optional().describe("The volume spike ratio (e.g., 1.5, 2.3)."),
-  explanation: z.string().optional().describe("The detailed, natural language explanation for the market reaction and risk score."),
+  explanation: z.string().optional().describe("The detailed, natural language explanation for the market reaction and risk score, including historical context if relevant."),
 });
 
 const ExtractedEntitySchema = z.object({
@@ -83,7 +119,7 @@ export async function intelligenceChat(input: IntelligenceChatInput): Promise<In
 
 const prompt = ai.definePrompt({
   name: 'intelligenceChatPrompt',
-  tools: [searchTheWeb],
+  tools: [searchTheWeb, getStockAnomalies],
   input: { schema: IntelligenceChatInputSchema },
   output: { schema: IntelligenceChatOutputSchema },
   prompt: `You are "Infocrux AI", an expert financial analyst chat assistant. Your responses must be structured, data-driven, and strictly neutral. Never provide investment advice.
@@ -123,6 +159,12 @@ Based on the user's query and the available context, generate a structured respo
     c.  If you cannot answer and a stock symbol is needed, politely inform the user that you need a stock symbol (e.g., "RELIANCE.NS", "TCS.NS") to provide analysis.
     d.  Provide a list of example questions as 'followUpSuggestions'.
 
+3.  **If the user asks about a company's history, trustworthiness, or past "fake" announcements (even if stock context is provided):**
+    a.  You MUST use the 'getStockAnomalies' tool to retrieve the stock's historical event data.
+    b.  Analyze this history for patterns. For example, look for multiple high-risk events, or a high frequency of "Statistically Abnormal" reactions.
+    c.  In your response, **do not make accusations or use subjective terms like "fake" or "manipulation."** Instead, provide a neutral, data-driven summary.
+    d.  Incorporate this historical context into the 'marketAnalysis.explanation'. For example: "Historical data shows that [Symbol] has a high sensitivity to market news, with 3 statistically abnormal reactions recorded in the past year. This pattern suggests investors should pay close attention to new announcements."
+
 Always prioritize providing a structured response in the defined output format.`,
 });
 
@@ -141,3 +183,5 @@ const intelligenceChatFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

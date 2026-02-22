@@ -1,7 +1,7 @@
 'use client';
 import { useState, useRef, useEffect, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, CornerDownLeft, BarChart, AlertTriangle } from 'lucide-react';
 import { nanoid } from 'nanoid';
@@ -13,7 +13,8 @@ import Balancer from 'react-wrap-balancer';
 const suggestionChips = [
   'Why is RELIANCE.NS moving?',
   'Any announcements for TCS.NS?',
-  'Show abnormal activity for HDFCBANK.NS',
+  'Review RELIANCE.NS for past abnormal activity',
+  'What is a P/E ratio?',
 ];
 
 export default function ChatPage() {
@@ -21,6 +22,7 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [isPending, startTransition] = useTransition();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -33,8 +35,8 @@ export default function ChatPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent<HTMLFormElement>) => {
+    e?.preventDefault();
     if (!input.trim()) return;
 
     const userMessage: Message = { id: nanoid(), role: 'user', content: input };
@@ -79,6 +81,13 @@ export default function ChatPage() {
     setInput(suggestion);
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        formRef.current?.requestSubmit();
+    }
+  };
+
   useEffect(scrollToBottom, [messages]);
 
 
@@ -110,12 +119,13 @@ export default function ChatPage() {
                 </Button>
             ))}
         </div>
-        <form onSubmit={handleSubmit} className="relative">
-          <Input
+        <form onSubmit={handleSubmit} ref={formRef} className="relative">
+          <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
             placeholder="Ask about a stock or paste a news link..."
-            className="pr-12 h-12 text-base"
+            className="pr-12 min-h-12 h-12 text-base"
           />
           <Button
             type="submit"
@@ -134,3 +144,5 @@ export default function ChatPage() {
     </div>
   );
 }
+
+    

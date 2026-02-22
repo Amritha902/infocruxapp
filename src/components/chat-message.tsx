@@ -7,6 +7,7 @@ import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { Button } from './ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
 function getRiskBadgeVariant(score: number): 'default' | 'destructive' | 'secondary' {
   if (score > 60) return 'destructive';
@@ -29,7 +30,7 @@ const ExtractedEntities = ({ entities }: { entities: {name: string, type: string
     if (!entities || entities.length === 0) return null;
 
     return (
-        <div>
+        <div className="bg-background/50 p-3 rounded-lg">
             <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><BrainCircuit className="w-4 h-4"/>Entities Involved</h3>
             <div className="space-y-2">
                 {entities.map(entity => {
@@ -53,7 +54,7 @@ const WebSources = ({ sources }: { sources: string[] | undefined }) => {
     if (!sources || sources.length === 0) return null;
 
     return (
-         <div>
+         <div className="bg-background/50 p-3 rounded-lg">
             <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><LinkIcon className="w-4 h-4"/>Sources</h3>
             <div className="space-y-2">
                 {sources.map((source, i) => (
@@ -77,18 +78,19 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
           <div className="bg-primary text-primary-foreground p-3 rounded-xl max-w-lg">
             <Balancer>{content}</Balancer>
           </div>
-          <div className="bg-muted rounded-full p-2">
-            <User className="w-5 h-5 text-muted-foreground"/>
-          </div>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src="https://picsum.photos/seed/user-avatar/40/40" alt="User" data-ai-hint="person face" />
+            <AvatarFallback>U</AvatarFallback>
+          </Avatar>
         </div>
       );
     }
 
   return (
     <div className="flex items-start gap-3">
-        <div className="bg-muted rounded-full p-2">
-            <Bot className="w-5 h-5 text-primary"/>
-        </div>
+        <Avatar className="h-8 w-8 bg-primary/10 border border-primary/20">
+             <Bot className="w-5 h-5 text-primary m-1.5"/>
+        </Avatar>
         <div className="flex-1 max-w-2xl">
             {isLoading ? (
                  <div className="flex items-center gap-2">
@@ -98,7 +100,7 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
                 </div>
             ) : ui ? (
                 <Card className="border-primary/20 bg-primary/5 dark:bg-primary/10">
-                    <CardHeader>
+                    <CardHeader className="pb-4">
                         {ui.marketAnalysis?.marketSummary && (
                             <CardTitle className="text-base tracking-normal">
                                 {ui.marketAnalysis.marketSummary}
@@ -118,9 +120,7 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
                    
                     <CardContent className="space-y-4 pt-0">
                          {ui.marketAnalysis && (
-                            <>
-                            <Separator />
-                            <div>
+                            <div className="bg-background/50 p-3 rounded-lg">
                                 <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm"><TrendingUp className="w-4 h-4"/>Market Reaction</h3>
                                 <p className="text-xs text-muted-foreground mb-3">{ui.marketAnalysis.explanation}</p>
                                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
@@ -138,25 +138,19 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
                                     </div>
                                 </div>
                             </div>
-                            </>
                         )}
                         {ui.announcementAnalysis && (
-                            <>
-                             <Separator />
-                             <div>
+                             <div className="bg-background/50 p-3 rounded-lg">
                                 <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><FileText className="w-4 h-4"/>Announcement Summary</h3>
                                 <p className="text-xs text-muted-foreground line-clamp-4">{ui.announcementAnalysis.summary}</p>
                             </div>
-                            </>
                         )}
 
                         <ExtractedEntities entities={ui.announcementAnalysis?.extractedEntities} />
                         <WebSources sources={ui.generalResponse?.sources} />
 
                          {ui.followUpSuggestions && ui.followUpSuggestions.length > 0 && (
-                            <>
-                             <Separator />
-                             <div>
+                            <div>
                                 <h3 className="font-semibold mb-2 text-sm">Follow-up Questions</h3>
                                 <div className="flex flex-col items-start gap-2">
                                     {ui.followUpSuggestions.map((suggestion, i) => (
@@ -166,7 +160,6 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
                                     ))}
                                 </div>
                             </div>
-                            </>
                         )}
                     </CardContent>
                 </Card>
@@ -179,3 +172,5 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
     </div>
   );
 }
+
+    
