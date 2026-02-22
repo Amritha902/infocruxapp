@@ -66,28 +66,37 @@ let auth: Auth;
 let firestore: Firestore;
   
 function initializeFirebase(): FirebaseInstances {
-    if (!getApps().length) {
-      try {
-        firebaseApp = initializeApp(firebaseConfig);
+    // A quick check to see if the config is populated with actual values.
+    // This prevents the app from crashing if the config contains placeholder values.
+    const isConfigured = firebaseConfig && firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("YOUR_");
+  
+    if (isConfigured) {
+      if (!getApps().length) {
+        try {
+          firebaseApp = initializeApp(firebaseConfig);
+          auth = getAuth(firebaseApp);
+          firestore = getFirestore(firebaseApp);
+        } catch (e) {
+          console.error('Failed to initialize Firebase', e);
+        }
+      } else {
+        firebaseApp = getApp();
         auth = getAuth(firebaseApp);
         firestore = getFirestore(firebaseApp);
-      } catch (e) {
-        console.error('Failed to initialize Firebase', e);
-        // Fallback to a dummy implementation if initialization fails
-        // This allows the app to run without a valid Firebase config
-        if (!firebaseApp) {
-          // @ts-ignore
-          firebaseApp = { name: '[empty]', options: {}, automaticDataCollectionEnabled: false };
-        }
-        // @ts-ignore
-        auth = { app: firebaseApp };
-        // @ts-ignore
-        firestore = { app: firebaseApp };
       }
-    } else {
-      firebaseApp = getApp();
-      auth = getAuth(firebaseApp);
-      firestore = getFirestore(firebaseApp);
+    }
+    
+    // Fallback to a dummy implementation if initialization fails or config is missing/invalid
+    if (!firebaseApp) {
+      if (!isConfigured) {
+          console.warn("Firebase config is using placeholder values. Firebase features will be disabled. Please update src/firebase/config.ts with your project's actual configuration.");
+      }
+      // @ts-ignore
+      firebaseApp = { name: '[dummy]', options: {}, automaticDataCollectionEnabled: false };
+      // @ts-ignore
+      auth = { app: firebaseApp };
+      // @ts-ignore
+      firestore = { app: firebaseApp };
     }
   
     return { app: firebaseApp, auth, firestore };
