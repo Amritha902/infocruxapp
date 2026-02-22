@@ -45,6 +45,13 @@ export type Announcement = {
   riskScore: number;
   abnormalReturn: number;
   volumeSpikeRatio: number;
+  category: 'M&A' | 'Earnings' | 'Fundraising' | 'Regulatory';
+  indexAdjustedReturn: number;
+  volatilityExpansion: number;
+  drivers: string[];
+  isVerified: boolean;
+  portfolioExposure?: number;
+  portfolioImpact?: number;
 };
 
 export type SectorAllocation = {

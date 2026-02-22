@@ -92,11 +92,18 @@ export const announcementsData: Announcement[] = [
       id: '1',
       symbol: 'RELIANCE.NS',
       companyName: 'Reliance Industries',
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
       fullText: 'Reliance Industries Limited is pleased to announce a strategic partnership with ABC Infra Pvt Ltd, a leader in renewable energy solutions. This collaboration, backed by DEF Capital, aims to develop 5GW of solar capacity in Rajasthan. This move strengthens our commitment to sustainable energy and is expected to generate significant value for our shareholders.',
       riskScore: 78,
-      abnormalReturn: -6.4,
-      volumeSpikeRatio: 4.1
+      abnormalReturn: -4.8,
+      volumeSpikeRatio: 3.6,
+      category: 'M&A',
+      indexAdjustedReturn: -5.3,
+      volatilityExpansion: 140,
+      drivers: ['Significant divergence from sector', 'Elevated trade intensity', 'Liquidity imbalance detected'],
+      isVerified: true,
+      portfolioExposure: 18.13,
+      portfolioImpact: -0.87
     },
     {
       id: '2',
@@ -106,7 +113,14 @@ export const announcementsData: Announcement[] = [
       fullText: 'TCS has secured a multi-year, multi-million dollar deal with a leading European bank to transform its digital core. This partnership will leverage TCS\'s expertise in cloud and AI to enhance customer experience and operational efficiency.',
       riskScore: 25,
       abnormalReturn: 0.8,
-      volumeSpikeRatio: 1.2
+      volumeSpikeRatio: 1.2,
+      category: 'Regulatory',
+      indexAdjustedReturn: 0.5,
+      volatilityExpansion: 25,
+      drivers: ['Normal market reaction', 'Volume within historical range'],
+      isVerified: true,
+      portfolioExposure: 35.48,
+      portfolioImpact: 0.18
     },
     {
         id: '3',
@@ -116,7 +130,12 @@ export const announcementsData: Announcement[] = [
         fullText: 'The Board of Directors of HDFC Bank will meet on Friday, 26th July 2024, to consider and approve the unaudited financial results for the quarter ending June 30, 2024.',
         riskScore: 45,
         abnormalReturn: -2.1,
-        volumeSpikeRatio: 2.5
+        volumeSpikeRatio: 2.5,
+        category: 'Earnings',
+        indexAdjustedReturn: -2.5,
+        volatilityExpansion: 60,
+        drivers: ['Elevated volume ahead of results', 'Price underperforming the banking index'],
+        isVerified: true,
     },
     {
         id: '4',
@@ -126,7 +145,12 @@ export const announcementsData: Announcement[] = [
         fullText: 'Bharti Airtel announced a revision in its prepaid tariff plans, effective from July 3rd, 2024. The company stated this is to improve ARPU and invest in network expansion. The base plan will see an increase of approximately 15%.',
         riskScore: 55,
         abnormalReturn: -3.2,
-        volumeSpikeRatio: 3.0
+        volumeSpikeRatio: 3.0,
+        category: 'Fundraising',
+        indexAdjustedReturn: -3.0,
+        volatilityExpansion: 90,
+        drivers: ['Negative reaction to price hike news', 'Volume 3x baseline'],
+        isVerified: true,
     }
 ];
 
