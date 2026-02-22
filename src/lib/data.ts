@@ -1,4 +1,4 @@
-import type { Portfolio, WatchlistItem, Announcement, SectorAllocation } from './types';
+import type { Portfolio, WatchlistItem, Announcement, SectorAllocation, NewsItem } from './types';
 
 export const portfolioData: Portfolio = {
   totalInvested: 155500,
@@ -164,6 +164,73 @@ export const liveRiskMonitorData = [
       drivers: ['Volume 2.1x baseline'],
     }
   ];
+
+export const newsData: NewsItem[] = [
+  {
+    id: '1',
+    headline: 'Reliance Retail to acquire 51% stake in Ed-a-Mamma, a kid and maternity-wear brand',
+    source: 'Moneycontrol',
+    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(),
+    relatedCompany: 'Reliance Industries',
+    symbol: 'RELIANCE.NS',
+    tags: ['M&A'],
+    impact: {
+      status: 'High abnormal reaction',
+      riskScore: 78,
+    },
+  },
+  {
+    id: '2',
+    headline: 'TCS partners with Bank of America for core banking transformation',
+    source: 'Livemint',
+    timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    relatedCompany: 'TCS',
+    symbol: 'TCS.NS',
+    tags: ['Regulatory'],
+    impact: {
+      status: 'No abnormal reaction',
+    },
+  },
+  {
+    id: '3',
+    headline: 'HDFC Bank board to consider fundraising via bonds in upcoming meeting',
+    source: 'Reuters',
+    timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    relatedCompany: 'HDFC Bank',
+    symbol: 'HDFCBANK.NS',
+    tags: ['Fundraising', 'Management change'],
+    impact: {
+      status: 'Elevated movement',
+      riskScore: 45,
+    },
+  },
+  {
+    id: '4',
+    headline: 'Infosys Q2 earnings preview: Margins likely to improve, but revenue growth may be soft',
+    source: 'Economic Times',
+    timestamp: new Date(Date.now() - 8 * 60 * 60 * 1000).toISOString(),
+    relatedCompany: 'Infosys',
+    symbol: 'INFY.NS',
+    tags: ['Earnings'],
+    impact: {
+      status: 'No abnormal reaction',
+    },
+  },
+    {
+    id: '5',
+    headline: 'Airtel hits 50 million unique 5G users, network covers all districts in India',
+    source: 'Business Standard',
+    timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
+    relatedCompany: 'Bharti Airtel',
+    symbol: 'BHARTIARTL.NS',
+    tags: ['Regulatory'],
+    impact: {
+      status: 'Elevated movement',
+      riskScore: 55,
+    },
+  },
+];
+
 
 export const getStockData = (symbol: string) => {
     const holding = portfolioData.holdings.find(h => h.symbol === symbol);

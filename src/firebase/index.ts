@@ -1,7 +1,14 @@
+'use client';
 import { initializeApp, getApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { firebaseConfig } from './config';
+
+export * from './provider';
+export * from './auth/use-user';
+export * from './firestore/use-collection';
+export * from './firestore/use-doc';
+export * from './use-memo-firebase';
 
 type FirebaseInstances = {
   app: FirebaseApp;
@@ -13,7 +20,7 @@ let firebaseApp: FirebaseApp;
 let auth: Auth;
 let firestore: Firestore;
 
-function initializeFirebase(): FirebaseInstances {
+export function initializeFirebase(): FirebaseInstances {
   if (!getApps().length) {
     try {
       firebaseApp = initializeApp(firebaseConfig);
@@ -40,8 +47,3 @@ function initializeFirebase(): FirebaseInstances {
 
   return { app: firebaseApp, auth, firestore };
 }
-
-// Export a function to get the instances
-export const getFirebase = () => initializeFirebase();
-
-// We will add and export hooks for auth and firestore later

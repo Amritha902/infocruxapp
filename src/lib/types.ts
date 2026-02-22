@@ -68,3 +68,17 @@ export type StockData = {
     dayPnl?: number;
     dayChange?: number;
 }
+
+export type NewsItem = {
+  id: string;
+  headline: string;
+  source: string;
+  timestamp: string;
+  relatedCompany: string;
+  symbol: string;
+  tags: ('Earnings' | 'M&A' | 'Regulatory' | 'Rumor' | 'Fundraising' | 'Management change')[];
+  impact: {
+    status: 'No abnormal reaction' | 'Elevated movement' | 'High abnormal reaction';
+    riskScore?: number;
+  };
+};

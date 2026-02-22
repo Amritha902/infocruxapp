@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'Market Pulse AI',
-  description: 'A trading intelligence and risk analytics overlay',
+  title: 'Infocrux',
+  description: 'Personalized Market News and Intelligence',
 };
 
 export default function RootLayout({

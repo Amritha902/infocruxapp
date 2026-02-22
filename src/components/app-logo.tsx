@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-const PulseIcon = (props: React.SVGProps<SVGSVGElement>) => (
+const InfoCruxIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg 
         xmlns="http://www.w3.org/2000/svg" 
         width="24" 
@@ -13,7 +13,11 @@ const PulseIcon = (props: React.SVGProps<SVGSVGElement>) => (
         strokeLinejoin="round"
         {...props}
     >
-        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+        <path d="M12 3v7.5" />
+        <path d="M12 13.5V21" />
+        <path d="M3 12h7.5" />
+        <path d="M13.5 12H21" />
+        <circle cx="12" cy="12" r="3" />
     </svg>
 );
 
@@ -22,10 +26,10 @@ export function AppLogo({ className }: { className?: string }) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div className="rounded-lg bg-primary p-2 text-primary-foreground">
-        <PulseIcon className="size-5" />
+        <InfoCruxIcon className="size-5" />
       </div>
       <h1 className="text-xl font-bold tracking-tight text-primary">
-        Market Pulse AI
+        Infocrux
       </h1>
     </div>
   );
