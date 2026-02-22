@@ -1,4 +1,4 @@
-import type { Portfolio, WatchlistItem, Announcement, SectorAllocation, NewsItem } from './types';
+import type { Portfolio, WatchlistItem, Announcement, SectorAllocation, NewsItem, LiveRiskData } from './types';
 
 export const portfolioData: Portfolio = {
   totalInvested: 155500,
@@ -154,38 +154,71 @@ export const announcementsData: Announcement[] = [
     }
 ];
 
-export const liveRiskMonitorData = [
+export const liveRiskMonitorData: LiveRiskData[] = [
     {
       id: '1',
       symbol: 'ADANIENT.NS',
       name: 'Adani Enterprises',
       riskScore: 89,
+      confidence: 0.92,
       lastHourTrend: [80, 82, 85, 89],
-      drivers: ['Volume 5.2x baseline', 'Price moved opposite index'],
+      drivers: { text: 'Volume 5.2x baseline', type: 'volume' },
+      marketDivergence: { stockReturn: -7.2, indexReturn: 1.1 },
+      volumeRatio: 5.2,
+      timeSinceTrigger: '12 min ago',
+      trend: 'increasing',
+      hasDisclosure: false,
+      preDisclosureMovement: false,
+      isCooling: false,
     },
     {
       id: '2',
       symbol: 'RELIANCE.NS',
       name: 'Reliance Industries',
       riskScore: 78,
+      confidence: 0.85,
       lastHourTrend: [70, 72, 75, 78],
-      drivers: ['Unusual options activity', 'Spread widened 110%'],
+      drivers: { text: 'Unusual options activity', type: 'volatility' },
+      marketDivergence: { stockReturn: -4.8, indexReturn: 1.1 },
+      volumeRatio: 3.6,
+      timeSinceTrigger: '45 min ago',
+      trend: 'increasing',
+      hasDisclosure: true,
+      preDisclosureMovement: true,
+      isCooling: false,
+      portfolioExposure: 18.13,
     },
     {
       id: '3',
       symbol: 'YESBANK.NS',
       name: 'Yes Bank',
       riskScore: 72,
-      lastHourTrend: [65, 68, 70, 72],
-      drivers: ['High intraday volatility'],
+      confidence: 0.77,
+      lastHourTrend: [75, 74, 73, 72],
+      drivers: { text: 'High intraday volatility', type: 'volatility' },
+      marketDivergence: { stockReturn: 6.1, indexReturn: 1.2 },
+      volumeRatio: 4.1,
+      timeSinceTrigger: '1.2 hr ago',
+      trend: 'decreasing',
+      hasDisclosure: false,
+      preDisclosureMovement: false,
+      isCooling: true,
     },
     {
       id: '4',
       symbol: 'BHARTIARTL.NS',
       name: 'Bharti Airtel',
       riskScore: 55,
+      confidence: 0.88,
       lastHourTrend: [50, 52, 53, 55],
-      drivers: ['Volume 2.1x baseline'],
+      drivers: { text: 'Price moved opposite to sector', type: 'price' },
+      marketDivergence: { stockReturn: -3.2, indexReturn: 1.2 },
+      volumeRatio: 2.1,
+      timeSinceTrigger: '3 hr ago',
+      trend: 'stable',
+      hasDisclosure: true,
+      preDisclosureMovement: false,
+      isCooling: false,
     }
   ];
 

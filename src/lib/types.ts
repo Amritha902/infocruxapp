@@ -1,4 +1,4 @@
-import { IntelligenceChatOutput } from "./ai/flows/chat-flow";
+import { IntelligenceChatOutput } from "@/ai/flows/chat-flow";
 
 export type Holding = {
   id: string;
@@ -97,4 +97,28 @@ export type Message = {
   role: 'user' | 'assistant';
   content: string;
   ui?: IntelligenceChatOutput;
+};
+
+export type LiveRiskData = {
+    id: string;
+    symbol: string;
+    name: string;
+    riskScore: number;
+    confidence: number;
+    lastHourTrend: number[];
+    drivers: {
+      text: string;
+      type: 'volume' | 'price' | 'volatility' | 'disclosure' | 'liquidity';
+    };
+    marketDivergence: {
+      stockReturn: number;
+      indexReturn: number;
+    };
+    volumeRatio: number;
+    timeSinceTrigger: string;
+    trend: 'increasing' | 'decreasing' | 'stable';
+    hasDisclosure: boolean;
+    preDisclosureMovement: boolean;
+    isCooling: boolean;
+    portfolioExposure?: number;
 };
