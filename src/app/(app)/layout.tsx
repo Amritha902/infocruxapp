@@ -1,10 +1,9 @@
 import { MainNav } from '@/components/main-nav';
 import { UserNav } from '@/components/user-nav';
-import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { FirebaseClientProvider } from '@/firebase';
 import { BottomNav } from '@/components/bottom-nav';
+import { GlobalSearch } from '@/components/global-search';
 
 const InfoCruxIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -36,14 +35,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="flex flex-col flex-1">
           {/* Header */}
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+          <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
             <div className="relative flex-1 md:grow-0">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search stocks..."
-                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-              />
+             <GlobalSearch />
             </div>
             <div className="ml-auto flex items-center gap-2">
               <ThemeToggle />
