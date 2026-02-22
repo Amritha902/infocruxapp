@@ -130,6 +130,41 @@ export const announcementsData: Announcement[] = [
     }
 ];
 
+export const liveRiskMonitorData = [
+    {
+      id: '1',
+      symbol: 'ADANIENT.NS',
+      name: 'Adani Enterprises',
+      riskScore: 89,
+      lastHourTrend: [80, 82, 85, 89],
+      drivers: ['Volume 5.2x baseline', 'Price moved opposite index'],
+    },
+    {
+      id: '2',
+      symbol: 'RELIANCE.NS',
+      name: 'Reliance Industries',
+      riskScore: 78,
+      lastHourTrend: [70, 72, 75, 78],
+      drivers: ['Unusual options activity', 'Spread widened 110%'],
+    },
+    {
+      id: '3',
+      symbol: 'YESBANK.NS',
+      name: 'Yes Bank',
+      riskScore: 72,
+      lastHourTrend: [65, 68, 70, 72],
+      drivers: ['High intraday volatility'],
+    },
+    {
+      id: '4',
+      symbol: 'BHARTIARTL.NS',
+      name: 'Bharti Airtel',
+      riskScore: 55,
+      lastHourTrend: [50, 52, 53, 55],
+      drivers: ['Volume 2.1x baseline'],
+    }
+  ];
+
 export const getStockData = (symbol: string) => {
     const holding = portfolioData.holdings.find(h => h.symbol === symbol);
     if(holding) return holding;

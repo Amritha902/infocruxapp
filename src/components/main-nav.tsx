@@ -8,6 +8,7 @@ import {
   Newspaper,
   Briefcase,
   ShieldAlert,
+  Activity,
 } from 'lucide-react';
 import {
   SidebarMenu,
@@ -20,6 +21,7 @@ const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/watchlist', icon: Star, label: 'Watchlist' },
   { href: '/announcements', icon: Newspaper, label: 'Announcements' },
+  { href: '/risk-monitor', icon: Activity, label: 'Live Risk Monitor' },
   { href: '/portfolio', icon: Briefcase, label: 'Portfolio' },
   { href: '/risk', icon: ShieldAlert, label: 'Risk Analytics' },
 ];

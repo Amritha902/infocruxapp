@@ -44,7 +44,9 @@ export function UserNav() {
           <DropdownMenuItem>
             Settings
           </DropdownMenuItem>
-          <DropdownMenuItem>New Team</DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/disclaimer">Disclaimer</Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
