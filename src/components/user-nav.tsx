@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Avatar,
   AvatarFallback,
@@ -11,12 +13,23 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
+import React, { useState, useEffect } from 'react';
+import { Skeleton } from "./ui/skeleton";
 
 export function UserNav() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return <Skeleton className="h-8 w-8 rounded-full" />;
+  }
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
