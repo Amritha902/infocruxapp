@@ -1,0 +1,51 @@
+export type Holding = {
+  id: string;
+  symbol: string;
+  name: string;
+  quantity: number;
+  avgPrice: number;
+  ltp: number;
+  sector: string;
+  invested: number;
+  currentValue: number;
+  pnl: number;
+  dayPnl: number;
+  dayChange: number;
+  dayChangePercentage: number;
+};
+
+export type Portfolio = {
+  totalInvested: number;
+  currentValue: number;
+  totalPnl: number;
+  totalPnlPercentage: number;
+  dayPnl: number;
+  dayPnlPercentage: number;
+  holdings: Holding[];
+};
+
+export type WatchlistItem = {
+  id: string;
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+  changePercentage: number;
+  riskScore: number;
+};
+
+export type Announcement = {
+  id: string;
+  symbol: string;
+  companyName: string;
+  timestamp: string;
+  fullText: string;
+  riskScore: number;
+  abnormalReturn: number;
+  volumeSpikeRatio: number;
+};
+
+export type SectorAllocation = {
+  sector: string;
+  value: number;
+};
