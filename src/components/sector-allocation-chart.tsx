@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { TrendingUp } from 'lucide-react';
-import { Label, Pie, PieChart } from 'recharts';
+import { Pie, PieChart, Cell } from 'recharts';
 
 import {
   Card,
@@ -17,8 +16,9 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { SectorAllocation } from '@/lib/types';
+import type { SectorAllocation } from '@/lib/types';
 import { Skeleton } from './ui/skeleton';
+import { cn } from '@/lib/utils';
 
 const chartConfig = {
   value: {
@@ -38,14 +38,22 @@ const chartConfig = {
   },
 };
 
+const riskLevelColors = {
+    'High': 'bg-destructive',
+    'Elevated': 'bg-yellow-500',
+    'Normal': 'bg-green-500'
+}
+
 type SectorAllocationChartProps = {
   data: SectorAllocation[];
-  totalValue: number;
 };
 
-export function SectorAllocationChart({ data, totalValue }: SectorAllocationChartProps) {
+export function SectorAllocationChart({ data }: SectorAllocationChartProps) {
   const id = 'pie-interactive';
   const [mounted, setMounted] = React.useState(false);
+  const totalValue = React.useMemo(() => {
+    return data.reduce((acc, curr) => acc + curr.value, 0);
+  }, [data]);
 
   React.useEffect(() => {
     setMounted(true);
@@ -71,14 +79,14 @@ export function SectorAllocationChart({ data, totalValue }: SectorAllocationChar
   
   return (
     <Card data-chart={id} className="flex flex-col">
-      <CardHeader className="items-center pb-0">
+      <CardHeader>
         <CardTitle>Sector Allocation</CardTitle>
-        <CardDescription>By Current Value</CardDescription>
+        <CardDescription>By Current Value & Risk</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square h-[250px]"
+          className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>
             <ChartTooltip
@@ -92,46 +100,32 @@ export function SectorAllocationChart({ data, totalValue }: SectorAllocationChar
               innerRadius={60}
               strokeWidth={5}
             >
-              <Label
-                content={({ viewBox }) => {
-                  if (viewBox && 'cx' in viewBox && 'cy' in viewBox) {
-                    return (
-                      <text
-                        x={viewBox.cx}
-                        y={viewBox.cy}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                      >
-                        <tspan
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          className="fill-foreground text-3xl font-bold"
-                        >
-                          {totalValue.toLocaleString('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 })}
-                        </tspan>
-                        <tspan
-                          x={viewBox.cx}
-                          y={(viewBox.cy || 0) + 24}
-                          className="fill-muted-foreground"
-                        >
-                          Total Value
-                        </tspan>
-                      </text>
-                    );
-                  }
-                }}
-              />
+              {data.map((entry) => (
+                    <Cell
+                        key={entry.sector}
+                        fill={chartConfig[entry.sector as keyof typeof chartConfig]?.color || 'hsl(var(--chart-5))'}
+                    />
+                ))}
             </Pie>
           </PieChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Portfolio is well-diversified across key sectors.
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing allocation for top 3 sectors
-        </div>
+      <CardFooter className="flex-col gap-3 text-sm">
+         {data.map(item => (
+            <div key={item.sector} className="flex w-full items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: chartConfig[item.sector as keyof typeof chartConfig]?.color }} />
+                    <span className="text-muted-foreground">{item.sector}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                     <div className='flex items-center gap-1.5'>
+                        <div className={cn("w-2 h-2 rounded-full", riskLevelColors[item.riskLevel])}></div>
+                        <span>{item.riskLevel}</span>
+                    </div>
+                    <span className="font-semibold">{((item.value / totalValue) * 100).toFixed(0)}%</span>
+                </div>
+            </div>
+         ))}
       </CardFooter>
     </Card>
   );

@@ -22,6 +22,8 @@ export const portfolioData: Portfolio = {
       dayPnl: 250,
       dayChange: 25,
       dayChangePercentage: 0.85,
+      riskScore: 78,
+      lastEvent: 'High abnormal reaction'
     },
     {
       id: '2',
@@ -37,6 +39,8 @@ export const portfolioData: Portfolio = {
       dayPnl: 300,
       dayChange: 20,
       dayChangePercentage: 0.52,
+      riskScore: 25,
+      lastEvent: 'Earnings announced 4h ago'
     },
     {
       id: '3',
@@ -52,6 +56,8 @@ export const portfolioData: Portfolio = {
       dayPnl: 100,
       dayChange: 5,
       dayChangePercentage: 0.33,
+      riskScore: 45,
+      lastEvent: 'Elevated movement'
     },
     {
       id: '4',
@@ -67,14 +73,16 @@ export const portfolioData: Portfolio = {
       dayPnl: 600,
       dayChange: 24,
       dayChangePercentage: 1.35,
+      riskScore: 15,
+      lastEvent: 'Normal trading day'
     },
   ],
 };
 
 export const sectorAllocations: SectorAllocation[] = [
-  { sector: 'Information Technology', value: 102750 },
-  { sector: 'Energy', value: 29500 },
-  { sector: 'Financials', value: 30500 },
+  { sector: 'Information Technology', value: 102750, riskLevel: 'Normal' },
+  { sector: 'Energy', value: 29500, riskLevel: 'High' },
+  { sector: 'Financials', value: 30500, riskLevel: 'Elevated' },
 ];
 
 export const watchlistData: WatchlistItem[] = [

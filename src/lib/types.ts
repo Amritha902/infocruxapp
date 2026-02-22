@@ -14,6 +14,8 @@ export type Holding = {
   dayPnl: number;
   dayChange: number;
   dayChangePercentage: number;
+  riskScore: number;
+  lastEvent: string;
 };
 
 export type Portfolio = {
@@ -57,6 +59,7 @@ export type Announcement = {
 export type SectorAllocation = {
   sector: string;
   value: number;
+  riskLevel: 'Normal' | 'Elevated' | 'High';
 };
 
 export type StockData = {
