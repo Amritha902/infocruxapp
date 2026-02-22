@@ -1,3 +1,5 @@
+import { IntelligenceChatOutput } from "./ai/flows/chat-flow";
+
 export type Holding = {
   id: string;
   symbol: string;
@@ -81,4 +83,11 @@ export type NewsItem = {
     status: 'No abnormal reaction' | 'Elevated movement' | 'High abnormal reaction';
     riskScore?: number;
   };
+};
+
+export type Message = {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  ui?: IntelligenceChatOutput;
 };
