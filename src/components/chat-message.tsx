@@ -2,7 +2,7 @@
 import { Message } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import Balancer from 'react-wrap-balancer';
-import { Bot, User, TrendingUp, TrendingDown, AlertCircle, FileText, Building, Globe } from 'lucide-react';
+import { Bot, User, TrendingUp, FileText, Building, Globe, User as UserIcon, Link as LinkIcon, Landmark, Building2, BrainCircuit } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
@@ -13,6 +13,59 @@ function getRiskBadgeVariant(score: number): 'default' | 'destructive' | 'second
   if (score > 30) return 'secondary';
   return 'default';
 }
+
+const entityIcons: { [key: string]: React.ElementType } = {
+    'Company': Building,
+    'Subsidiary': Building2,
+    'Counterparty': Landmark,
+    'Financial Backer': Landmark,
+    'Bank': Landmark,
+    'Individual': UserIcon,
+    'default': Globe,
+};
+
+
+const ExtractedEntities = ({ entities }: { entities: {name: string, type: string}[] | undefined }) => {
+    if (!entities || entities.length === 0) return null;
+
+    return (
+        <div>
+            <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><BrainCircuit className="w-4 h-4"/>Entities Involved</h3>
+            <div className="space-y-2">
+                {entities.map(entity => {
+                    const Icon = entityIcons[entity.type] || entityIcons.default;
+                    return (
+                    <div key={entity.name} className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                            <Icon className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{entity.name}</span>
+                        </div>
+                        <Badge variant="outline" className="font-normal">{entity.type}</Badge>
+                    </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+const WebSources = ({ sources }: { sources: string[] | undefined }) => {
+    if (!sources || sources.length === 0) return null;
+
+    return (
+         <div>
+            <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><LinkIcon className="w-4 h-4"/>Sources</h3>
+            <div className="space-y-2">
+                {sources.map((source, i) => (
+                    <a href={source} key={i} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate block">
+                        {source}
+                    </a>
+                ))}
+            </div>
+        </div>
+    )
+}
+
 
 export function ChatMessage({ message, isLoading }: { message: Message, isLoading: boolean }) {
     const { role, content, ui } = message;
@@ -51,18 +104,25 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
                                 {ui.marketAnalysis.marketSummary}
                             </CardTitle>
                         )}
+                         {ui.generalResponse?.summary && !ui.marketAnalysis?.marketSummary && (
+                            <CardTitle className="text-base tracking-normal">
+                                {ui.generalResponse.summary}
+                            </CardTitle>
+                        )}
                         {ui.marketAnalysis?.riskScore && (
                              <Badge variant={getRiskBadgeVariant(ui.marketAnalysis.riskScore)} className="w-fit">
                                 {ui.marketAnalysis.riskCategory} Risk
                             </Badge>
                         )}
                     </CardHeader>
-                    {(ui.marketAnalysis || ui.announcementAnalysis) && <Separator className="mx-6 w-auto" />}
-                    <CardContent className="space-y-4">
-                        {ui.marketAnalysis && (
+                   
+                    <CardContent className="space-y-4 pt-0">
+                         {ui.marketAnalysis && (
+                            <>
+                            <Separator />
                             <div>
-                                <h3 className="font-semibold mb-2 flex items-center gap-2"><TrendingUp className="w-4 h-4"/>Market Reaction</h3>
-                                <p className="text-sm text-muted-foreground mb-3">{ui.marketAnalysis.explanation}</p>
+                                <h3 className="font-semibold mb-3 flex items-center gap-2 text-sm"><TrendingUp className="w-4 h-4"/>Market Reaction</h3>
+                                <p className="text-xs text-muted-foreground mb-3">{ui.marketAnalysis.explanation}</p>
                                 <div className="grid grid-cols-3 gap-2 text-center text-xs">
                                      <div className="p-2 bg-background/50 rounded-md">
                                         <div className="font-bold text-sm">{ui.marketAnalysis.riskScore}</div>
@@ -78,24 +138,35 @@ export function ChatMessage({ message, isLoading }: { message: Message, isLoadin
                                     </div>
                                 </div>
                             </div>
+                            </>
                         )}
                         {ui.announcementAnalysis && (
+                            <>
+                             <Separator />
                              <div>
-                                <h3 className="font-semibold mb-2 flex items-center gap-2"><FileText className="w-4 h-4"/>Announcement Summary</h3>
-                                <p className="text-sm text-muted-foreground line-clamp-4">{ui.announcementAnalysis.summary}</p>
+                                <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm"><FileText className="w-4 h-4"/>Announcement Summary</h3>
+                                <p className="text-xs text-muted-foreground line-clamp-4">{ui.announcementAnalysis.summary}</p>
                             </div>
+                            </>
                         )}
+
+                        <ExtractedEntities entities={ui.announcementAnalysis?.extractedEntities} />
+                        <WebSources sources={ui.generalResponse?.sources} />
+
                          {ui.followUpSuggestions && ui.followUpSuggestions.length > 0 && (
+                            <>
+                             <Separator />
                              <div>
-                                <h3 className="font-semibold mb-2">Follow-up Questions</h3>
+                                <h3 className="font-semibold mb-2 text-sm">Follow-up Questions</h3>
                                 <div className="flex flex-col items-start gap-2">
                                     {ui.followUpSuggestions.map((suggestion, i) => (
-                                        <Button key={i} variant="outline" size="sm" className="text-xs h-auto py-1.5">
+                                        <Button key={i} variant="outline" size="sm" className="text-xs h-auto py-1.5 bg-background/50">
                                             {suggestion}
                                         </Button>
                                     ))}
                                 </div>
                             </div>
+                            </>
                         )}
                     </CardContent>
                 </Card>
