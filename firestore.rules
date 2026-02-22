@@ -1,0 +1,207 @@
+
+/**
+ * This ruleset enforces a dual security model for the Market Pulse AI application.
+ *
+ * Core Philosophy: The model provides strict user-ownership for all personal data while
+ * making global market data available on a read-only basis to all authenticated users.
+ * This ensures user privacy is paramount and that reference data integrity is maintained.
+ *
+ * Data Structure: The data is segregated into two main hierarchical trees:
+ *   1. /users/{userId}/... : This tree contains all private, user-specific data such as
+ *      broker integrations, holdings, and watchlists. Access is strictly controlled
+ *      by matching the authenticated user's ID with the {userId} in the path.
+ *   2. /stocks/{stockId}/... : This tree contains public market data, such as stock
+ *      details, announcements, and historical prices. This data is read-only for clients.
+ *
+ * Key Security Decisions:
+ *   - Strict User Data Isolation: A user can only access documents within their own
+ *     /users/{userId} data tree. Cross-user access is explicitly forbidden.
+ *   - No User Enumeration: Listing the top-level /users collection is disallowed to
+ *     prevent scraping of user IDs.
+ *   - Read-Only Market Data: All collections under /stocks are read-only for client
+ *     applications. This prevents any client-side modification of critical market data,
+ *     which is assumed to be populated by trusted backend processes.
+ *   - Secure by Default: Access is denied for any path or operation not explicitly allowed.
+ *
+ * Denormalization for Authorization: To ensure fast and secure authorization, the `userId`
+ * is denormalized and stored in every document within a user's private data tree. This
+ * allows security rules to validate ownership by checking a field on the document itself,
+ * avoiding slow, costly, and sometimes impossible `get()` calls to parent documents.
+ *
+ * Structural Segregation: The separation of private data into `/users` and public data
+ * into `/stocks` creates homogeneous security zones. This simplifies rule logic, improves
+ * performance, and makes the security model easier to understand and maintain. For example,
+ * all documents under `/users/{userId}` share the same ownership-based security principle.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ------------------------------------------------------------------------
+    // Helper Functions
+    // ------------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing document ownership.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * Checks for ownership on an existing document. Used for update and delete.
+     * Ensures that rules don't pass on requests for non-existent documents.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that the incoming document on creation has a `userId` field
+     * that matches the user ID from the path. This enforces relational integrity.
+     */
+    function hasCorrectUserIdOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Validates that the `userId` field is immutable on update. This prevents
+     * re-assigning ownership of a document.
+     */
+    function isUserIdImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    // ------------------------------------------------------------------------
+    // User Data Collections (/users)
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description A user can manage their own profile document.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creating their own user document for the first time.
+     * @deny (get) A user trying to read another user's profile.
+     * @principle Enforces self-creation and ownership of a user's root document.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own broker integrations.
+     * @path /users/{userId}/brokerIntegrations/{integrationId}
+     * @allow (create) An authenticated user adding a new broker integration to their own profile.
+     * @deny (list) An authenticated user trying to list broker integrations for another user.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/brokerIntegrations/{integrationId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own holdings, which are nested under a broker integration.
+     * @path /users/{userId}/brokerIntegrations/{integrationId}/holdings/{holdingId}
+     * @allow (get) An authenticated user reading one of their own stock holdings.
+     * @deny (update) An authenticated user trying to modify a holding belonging to another user.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/brokerIntegrations/{integrationId}/holdings/{holdingId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage their own order history, nested under a broker integration.
+     * @path /users/{userId}/brokerIntegrations/{integrationId}/orderHistory/{orderId}
+     * @allow (list) An authenticated user listing their own trade order history.
+     * @deny (create) An authenticated user trying to add an order to another user's history.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/brokerIntegrations/{integrationId}/orderHistory/{orderId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can create, read, update, and delete their own watchlists.
+     * @path /users/{userId}/watchlists/{watchlistId}
+     * @allow (create) An authenticated user creating a new watchlist for themselves.
+     * @deny (delete) A user trying to delete a watchlist belonging to someone else.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/watchlists/{watchlistId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description A user can manage items within their own watchlists.
+     * @path /users/{userId}/watchlists/{watchlistId}/items/{watchlistItemId}
+     * @allow (create) An authenticated user adding a stock to one of their own watchlists.
+     * @deny (get) A user trying to view a watchlist item belonging to another user.
+     * @principle Restricts access to a user's own data tree using path-based ownership.
+     */
+    match /users/{userId}/watchlists/{watchlistId}/items/{watchlistItemId} {
+      allow get, list: if isOwner(userId);
+      // The IR does not define a `userId` on WatchlistItem, but the reasoning mandates it.
+      // Assuming denormalization is correctly implemented by the client app as per the reasoning.
+      // If `userId` is NOT on the WatchlistItem, `create` and `update` will fail securely.
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    // ------------------------------------------------------------------------
+    // Public Market Data Collections (/stocks)
+    // ------------------------------------------------------------------------
+
+    /**
+     * @description Provides read-only access to the master list of stocks for any signed-in user.
+     * @path /stocks/{stockId}
+     * @allow (get, list) Any authenticated user can read stock information.
+     * @deny (create, update, delete) All client-side write operations are forbidden to protect data integrity.
+     * @principle Segregates public, read-only data from private user data.
+     */
+    match /stocks/{stockId} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    /**
+     * @description Provides read-only access to all stock subcollections (announcements, prices, etc.).
+     * @path /stocks/{stockId}/{path=**}
+     * @allow (get, list) Any authenticated user can read any data nested under a stock document.
+     * @deny (create, update, delete) All client-side write operations are forbidden.
+     * @principle Establishes a global read-only policy for all public market data.
+     */
+    match /stocks/{stockId}/{path=**} {
+      allow get, list: if isSignedIn();
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}

@@ -167,12 +167,27 @@ export const liveRiskMonitorData = [
 
 export const getStockData = (symbol: string) => {
     const holding = portfolioData.holdings.find(h => h.symbol === symbol);
-    if(holding) return holding;
+    if(holding) {
+      const { ltp, ...rest } = holding;
+      return { ...rest, price: ltp, ltp };
+    }
 
     const watchlistItem = watchlistData.find(w => w.symbol === symbol);
     if(watchlistItem) return {
       ...watchlistItem,
       ltp: watchlistItem.price
+    };
+    
+    const liveItem = liveRiskMonitorData.find(w => w.symbol === symbol);
+    if(liveItem) return {
+      id: liveItem.id,
+      symbol: liveItem.symbol,
+      name: liveItem.name,
+      price: 0, // LTP not available in this data source
+      ltp: 0,
+      change: 0,
+      changePercentage: 0,
+      riskScore: liveItem.riskScore,
     };
 
     return null;

@@ -23,14 +23,15 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
     notFound();
   }
 
-  const change = stock.price - (stock.price / (1 + stock.changePercentage / 100));
+  const change = stock.dayChange ?? (stock.price - (stock.price / (1 + (stock.changePercentage ?? 0) / 100)));
   const isPositive = change >= 0;
+  const changePercentage = stock.dayChange ? (stock.dayChange / (stock.ltp - stock.dayChange)) * 100 : stock.changePercentage ?? 0;
 
   const stats = [
-    { label: "Open", value: formatCurrency(stock.price * 0.99) },
-    { label: "High", value: formatCurrency(stock.price * 1.02) },
-    { label: "Low", value: formatCurrency(stock.price * 0.98) },
-    { label: "Prev. Close", value: formatCurrency(stock.price - change) },
+    { label: "Open", value: formatCurrency(stock.ltp * 0.99) },
+    { label: "High", value: formatCurrency(stock.ltp * 1.02) },
+    { label: "Low", value: formatCurrency(stock.ltp * 0.98) },
+    { label: "Prev. Close", value: formatCurrency(stock.ltp - change) },
     { label: "Volume", value: "5.2M" },
     { label: "Market Cap", value: "₹19.8L Cr" },
   ];
@@ -42,7 +43,7 @@ export default function StockDetailPage({ params }: { params: { symbol: string }
         <div className="flex items-baseline gap-2 mt-1">
           <p className="text-3xl font-bold">{formatCurrency(stock.ltp)}</p>
           <p className={cn("font-semibold", isPositive ? "text-green-600" : "text-red-600")}>
-            {isPositive ? '+' : ''}{change.toFixed(2)} ({isPositive ? '+' : ''}{stock.changePercentage.toFixed(2)}%)
+            {isPositive ? '+' : ''}{change.toFixed(2)} ({isPositive ? '+' : ''}{changePercentage.toFixed(2)}%)
           </p>
         </div>
       </header>

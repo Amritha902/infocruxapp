@@ -49,3 +49,22 @@ export type SectorAllocation = {
   sector: string;
   value: number;
 };
+
+export type StockData = {
+    id: string;
+    symbol: string;
+    name: string;
+    price: number;
+    ltp: number;
+    change?: number;
+    changePercentage?: number;
+    riskScore?: number;
+    quantity?: number;
+    avgPrice?: number;
+    sector?: string;
+    invested?: number;
+    currentValue?: number;
+    pnl?: number;
+    dayPnl?: number;
+    dayChange?: number;
+}

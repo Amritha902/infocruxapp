@@ -1,0 +1,157 @@
+
+{
+    "entities": {
+        "UserProfile": {
+            "title": "User Profile",
+            "description": "Represents a user's profile information.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string", "description": "The user's unique ID." },
+                "email": { "type": "string", "format": "email", "description": "The user's email address." },
+                "displayName": { "type": "string", "description": "The user's display name." },
+                "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." }
+            },
+            "required": ["id", "email"]
+        },
+        "BrokerIntegration": {
+            "title": "Broker Integration",
+            "description": "Represents a user's linked brokerage account.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string" },
+                "userId": { "type": "string" },
+                "broker": { "type": "string" },
+                "apiKey": { "type": "string" }
+            },
+            "required": ["userId", "broker"]
+        },
+        "Holding": {
+            "title": "Holding",
+            "description": "Represents a single stock holding in a user's portfolio.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string" },
+                "userId": { "type": "string" },
+                "symbol": { "type": "string" },
+                "quantity": { "type": "number" },
+                "avgPrice": { "type": "number" }
+            },
+            "required": ["userId", "symbol", "quantity", "avgPrice"]
+        },
+        "Order": {
+            "title": "Order",
+            "description": "Represents a single trade order.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string" },
+                "userId": { "type": "string" },
+                "symbol": { "type": "string" },
+                "type": { "type": "string", "enum": ["buy", "sell"] },
+                "quantity": { "type": "number" },
+                "price": { "type": "number" },
+                "timestamp": { "type": "string", "format": "date-time" }
+            },
+            "required": ["userId", "symbol", "type", "quantity", "price", "timestamp"]
+        },
+        "Watchlist": {
+            "title": "Watchlist",
+            "description": "Represents a user's watchlist.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string" },
+                "userId": { "type": "string" },
+                "name": { "type": "string" }
+            },
+            "required": ["userId", "name"]
+        },
+        "WatchlistItem": {
+            "title": "Watchlist Item",
+            "description": "An item within a user's watchlist.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string" },
+                "symbol": { "type": "string" }
+            },
+            "required": ["symbol"]
+        },
+        "Stock": {
+            "title": "Stock",
+            "description": "Represents a stock's master data.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string", "description": "The stock symbol." },
+                "name": { "type": "string" },
+                "exchange": { "type": "string" }
+            },
+            "required": ["id", "name"]
+        },
+        "Announcement": {
+            "title": "Announcement",
+            "description": "A corporate announcement.",
+            "type": "object",
+            "properties": {
+                "id": { "type": "string" },
+                "text": { "type": "string" },
+                "timestamp": { "type": "string", "format": "date-time" },
+                "riskScore": { "type": "number" },
+                "explanation": { "type": "string" }
+            },
+            "required": ["text", "timestamp"]
+        },
+        "Price": {
+            "title": "Price",
+            "description": "5-minute OHLCV price data.",
+            "type": "object",
+            "properties": {
+                "timestamp": { "type": "string", "format": "date-time" },
+                "open": { "type": "number" },
+                "high": { "type": "number" },
+                "low": { "type": "number" },
+                "close": { "type": "number" },
+                "volume": { "type": "number" }
+            },
+            "required": ["timestamp", "open", "high", "low", "close", "volume"]
+        }
+    },
+    "auth": {
+        "providers": ["Email", "Phone"]
+    },
+    "firestore": {
+        "/users/{userId}": {
+            "schema": { "$ref": "#/backend/entities/UserProfile" },
+            "description": "Stores user profile information."
+        },
+        "/users/{userId}/brokerIntegrations/{integrationId}": {
+            "schema": { "$ref": "#/backend/entities/BrokerIntegration" },
+            "description": "Stores user's linked broker accounts."
+        },
+        "/users/{userId}/brokerIntegrations/{integrationId}/holdings/{holdingId}": {
+            "schema": { "$ref": "#/backend/entities/Holding" },
+            "description": "Stores portfolio holdings for a specific broker."
+        },
+        "/users/{userId}/brokerIntegrations/{integrationId}/orderHistory/{orderId}": {
+            "schema": { "$ref": "#/backend/entities/Order" },
+            "description": "Stores trade history for a specific broker."
+        },
+        "/users/{userId}/watchlists/{watchlistId}": {
+            "schema": { "$ref": "#/backend/entities/Watchlist" },
+            "description": "Stores user-created watchlists."
+        },
+        "/users/{userId}/watchlists/{watchlistId}/items/{watchlistItemId}": {
+            "schema": { "$ref": "#/backend/entities/WatchlistItem" },
+            "description": "Stores items within a user's watchlist."
+        },
+        "/stocks/{stockId}": {
+            "schema": { "$ref": "#/backend/entities/Stock" },
+            "description": "Master list of all stocks."
+        },
+        "/stocks/{stockId}/announcements/{announcementId}": {
+            "schema": { "$ref": "#/backend/entities/Announcement" },
+            "description": "Announcements for a specific stock."
+        },
+        "/stocks/{stockId}/prices/{priceId}": {
+            "schema": { "$ref": "#/backend/entities/Price" },
+            "description": "5-minute OHLCV data for a stock."
+        }
+    }
+}
