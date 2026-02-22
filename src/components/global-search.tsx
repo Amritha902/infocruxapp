@@ -2,18 +2,19 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search, TrendingUp, Newspaper, FileText, Loader2 } from 'lucide-react';
+import { Search, TrendingUp, Newspaper, FileText, Loader2, Building } from 'lucide-react';
 import { announcementsData, newsData, portfolioData } from '@/lib/data';
 import Link from 'next/link';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
 import { Card } from './ui/card';
-import { Separator } from './ui/separator';
+import type { Holding, Announcement, NewsItem } from '@/lib/types';
 
 interface SearchResult {
-  stocks: any[];
-  announcements: any[];
-  news: any[];
+  stocks: Holding[];
+  announcements: Announcement[];
+  news: NewsItem[];
+  entities: any[]; // Placeholder for entity search
 }
 
 export function GlobalSearch() {
@@ -26,7 +27,7 @@ export function GlobalSearch() {
 
   const performSearch = useCallback((currentQuery: string): SearchResult => {
     if (!currentQuery) {
-      return { stocks: [], announcements: [], news: [] };
+      return { stocks: [], announcements: [], news: [], entities: [] };
     }
     const lowerCaseQuery = currentQuery.toLowerCase();
     
@@ -34,44 +35,47 @@ export function GlobalSearch() {
       (h) =>
         h.symbol.toLowerCase().includes(lowerCaseQuery) ||
         h.name.toLowerCase().includes(lowerCaseQuery)
-    ).slice(0, 5);
+    ).slice(0, 3);
 
     const announcements = announcementsData.filter(
         (a) => a.companyName.toLowerCase().includes(lowerCaseQuery) || a.fullText.toLowerCase().includes(lowerCaseQuery)
-    ).slice(0, 5);
+    ).slice(0, 3);
 
     const news = newsData.filter(
         (n) => n.headline.toLowerCase().includes(lowerCaseQuery) || n.relatedCompany.toLowerCase().includes(lowerCaseQuery)
-    ).slice(0, 5);
+    ).slice(0, 3);
 
-    return { stocks, announcements, news };
+    return { stocks, announcements, news, entities: [] };
   }, []);
 
   useEffect(() => {
-    if (debouncedQuery) {
+    if (debouncedQuery && isFocused) {
       setIsLoading(true);
-      const searchResults = performSearch(debouncedQuery);
-      setResults(searchResults);
-      setIsLoading(false);
+      // Simulate network request
+      setTimeout(() => {
+        const searchResults = performSearch(debouncedQuery);
+        setResults(searchResults);
+        setIsLoading(false);
+      }, 200);
     } else {
       setResults(null);
     }
-  }, [debouncedQuery, performSearch]);
+  }, [debouncedQuery, performSearch, isFocused]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
         if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
             setIsFocused(false);
+            setQuery('');
         }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
         document.removeEventListener('mousedown', handleClickOutside);
     };
-}, []);
+  }, []);
 
-
-  const hasResults = results && (results.stocks.length > 0 || results.announcements.length > 0 || results.news.length > 0);
+  const hasResults = results && (results.stocks.length > 0 || results.announcements.length > 0 || results.news.length > 0 || results.entities.length > 0);
 
   return (
     <div className="relative w-full md:w-[200px] lg:w-[336px]" ref={searchRef}>
@@ -84,18 +88,18 @@ export function GlobalSearch() {
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setIsFocused(true)}
       />
-      {isFocused && (query.length > 0) && (
+      {isFocused && query.length > 0 && (
         <Card className="absolute top-full mt-2 w-full max-h-[60vh] overflow-y-auto z-50">
-           <div className='p-4'>
+           <div className='p-2'>
             {isLoading ? (
               <div className="flex items-center justify-center p-4">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>
             ) : hasResults ? (
-                <div className='space-y-4'>
+                <div className='space-y-2'>
                     {results.stocks.length > 0 && (
                         <div>
-                            <h4 className='text-xs font-semibold text-muted-foreground px-2 mb-2'>Stocks</h4>
+                            <h4 className='text-xs font-semibold text-muted-foreground px-2 mb-1'>Stocks</h4>
                              {results.stocks.map((stock) => (
                                 <Link key={stock.id} href={`/stock/${stock.symbol}`} className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-muted" onClick={() => setIsFocused(false)}>
                                     <div className="bg-muted p-2 rounded-md"><TrendingUp className="h-4 w-4" /></div>
@@ -115,11 +119,11 @@ export function GlobalSearch() {
                     )}
                      {results.announcements.length > 0 && (
                         <div>
-                            <h4 className='text-xs font-semibold text-muted-foreground px-2 mb-2'>Announcements</h4>
+                            <h4 className='text-xs font-semibold text-muted-foreground px-2 mb-1'>Announcements</h4>
                              {results.announcements.map((item) => (
                                 <Link key={item.id} href={`/stock/${item.symbol}`} className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-muted" onClick={() => setIsFocused(false)}>
                                     <div className="bg-muted p-2 rounded-md"><FileText className="h-4 w-4" /></div>
-                                    <div>
+                                    <div className='overflow-hidden'>
                                         <p className="text-sm font-semibold truncate line-clamp-1">{item.companyName}</p>
                                         <p className="text-xs text-muted-foreground truncate">{item.fullText}</p>
                                     </div>
@@ -129,11 +133,11 @@ export function GlobalSearch() {
                     )}
                     {results.news.length > 0 && (
                         <div>
-                            <h4 className='text-xs font-semibold text-muted-foreground px-2 mb-2'>News</h4>
+                            <h4 className='text-xs font-semibold text-muted-foreground px-2 mb-1'>News</h4>
                              {results.news.map((item) => (
                                 <Link key={item.id} href={`/stock/${item.symbol}`} className="flex items-center gap-3 p-2 -mx-2 rounded-lg hover:bg-muted" onClick={() => setIsFocused(false)}>
                                     <div className="bg-muted p-2 rounded-md"><Newspaper className="h-4 w-4" /></div>
-                                    <div>
+                                    <div className='overflow-hidden'>
                                         <p className="text-sm font-semibold truncate">{item.headline}</p>
                                         <p className="text-xs text-muted-foreground">{item.source}</p>
                                     </div>
