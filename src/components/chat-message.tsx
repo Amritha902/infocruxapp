@@ -6,6 +6,7 @@ import { Bot, User, TrendingUp, TrendingDown, AlertCircle, FileText, Building, G
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
+import { Button } from './ui/button';
 
 function getRiskBadgeVariant(score: number): 'default' | 'destructive' | 'secondary' {
   if (score > 60) return 'destructive';
